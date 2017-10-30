@@ -15,6 +15,8 @@ class ClimateVar(object):
         self.duration = None
         self.data = []
         self.timelist = []
+
+        self.monthbounds = [] # a nested list holding the index values of the start and end of each month in the daily data.
         
     def getName(self):
         return self.name
@@ -54,16 +56,67 @@ class ClimateVar(object):
         self.end = self.timelist[-1]
         self.duration = self.end - self.start
         
-    """def calculateMonthlyMeans():
-        if self.name == 'PRCP': # a "monthly mean" from daily precip data is a sum of the daily precip data. This needs to be handled differently than the temperatures
-            
-            
-        elif self.name in ["TAVG","TMIN","TMAX"]:"""
-            
-    def calculateSeasonalMeans():
+class Stats(object):
+    validtimeframes = ["month","season","year"]
+    seasonTypes = ["standard 3 month", "standard "]
+    seasons = 
+
+    def __init__(self):
+
+    def calculateMean(climateVariable,timeframe):
+        """
+        valid timeframes include: month, season, year
+        """
+        if timeframe not in validtimeframes:
+            print("error: did not enter a valid timeframe")
+            print("please enter a timeframe from the following: ")
+            print(validtimeframes)
+            return
         
-    def calculate
+        if climateVariable.name == 'PRCP':
+            if timeframe == "month":
+                self.__calculateCumulativeMonthlyPrcp(climateVariable)
+            elif timeframe == "season":
+                self.__calculateCumulativeSeasonalPrcp(climateVariable)
+            else:           
+                self.__calculateCumulativeAnnualPrcp(climateVariable)
+        elif climateVariable.name in ["TAVG","TMIN","TMAX"]:
+            if timeframe == "month":
+                self.__calculateMonthlyMean(climateVariable)
+            elif timeframe == "season":
+                self.__calculateSeasonalMean(climateVariable)
+            else:
+                self.__calculateAnnualMean(climateVariable)
+        else:
+            # do some other stuff
+            return
+
+    def __calculateMonthlyMean(climateVariable):
+        timestep = 0
+        total = 0 # the running total 
+        count = 0 # the number of days that go into the total
+
+        monthlyMeans = []
+        newTimelist = []
+        while timestep < len(climateVariable.timelist):
+            curDay = climateVariable.timelist[timestep].day
+            curMonth = climateVariable.timelist[timestep].month
+            if curDay == 1: # begin runningTotal and count on day 1
+                if 
+
+            timestep+=1
+
+    def __calculateCumulativeMonthlyPrcp():
+
+    def __calculateSeasonalMean():
+
+    def __calculateCumulativeSeasonalPrcp():
+
+    def __calculateAnnualMean():
+
+    def __calculateCumulativeAnnualPrcp():
             
+
 class Station(object):
     
     def __init__(self,initName,initStationId,initCountry,initState,initLat,initLon,initElev,initHCN,initCRN,initGSN,initWMOId):

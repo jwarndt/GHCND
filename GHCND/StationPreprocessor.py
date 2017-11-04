@@ -4,7 +4,7 @@ import os
 import numpy as np
 import osgeo.ogr as ogr
 import osgeo.osr as osr
-from DataStructs import *
+from DataStructs import * # not sure if this is done right
 
 class StationPreprocessor(object):
     

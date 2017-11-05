@@ -22,7 +22,7 @@ class StationPreprocessor(object):
         self.inventoryFile = initInventoryMetadata
         self.dlyFileDir = initDlyFileDirectory
         
-        self.stations = np.array([]) # stations of interest: a list of Station objects
+        self.stations = [] # stations of interest: a list of Station objects
         self.states = [] # a list of state abreviations
         self.countries = [] # a list of country abreviations
         

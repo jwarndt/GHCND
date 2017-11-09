@@ -424,7 +424,7 @@ class StationPreprocessor(object):
         self.stations = np.array(self.stations) # set the station list to an np.array
             
     def clearStations(self):
-        self.stations = np.array([])
+        self.stations = []
         
     def processDlyFiles(self,variablesOfInterest):
         """
@@ -454,6 +454,8 @@ class StationPreprocessor(object):
                         variable = ClimateVar(varName)
                     else:
                         variable = station.variables[varName] # else, point to the variable and append to its data
+                        variable.setData(list(variable.data)) # need to cast to a list because we append instead of np.append(). We then cast to a numpy array at the end when we finally set the data
+                        variable.setTimelist(list(variable.timelist)) # do the same with the timelist
                     while dataIdx <= 261: # the last dataIdx is 261
                         if curDay <= calendar.monthrange(curYear,curMonth)[1]: # only process data in the time range of the month.
                             value = float(line[dataIdx:dataIdx+5].strip()) # the data value occupies 4 spaces in the txt, so slice appropriately.
@@ -470,8 +472,8 @@ class StationPreprocessor(object):
                     if varName not in station.variables: # the variable wasn't found in the Station's vars, append the newly created variable, otherwise the variable was only modified.
                         station.variables[varName] = variable
                         station.variables[varName].dataDescription = "daily"
-                    variable.setData(variable.data) # to set the list to an np.array
-                    variable.setTimelist(variable.timelist) # to set the list to an np.array
+                    variable.setData(np.array(variable.data)) # to set the list to an np.array
+                    variable.setTimelist(np.array(variable.timelist)) # to set the list to an np.array
                 line = infile.readline()
             infile.close()
             # now set the time bounds for each variable using its already built timelist (this is just to set variable.start, variable.end, and variable.duration)
@@ -606,13 +608,13 @@ class ClimateVar(object):
         return self.data
         
     def setData(self,newData):
-        self.data = np.array(newData)
+        self.data = newData
         
     def getTimelist(self):
         return self.timelist
         
     def setTimelist(self,newTimelist):
-        self.timelist = np.array(newTimelist)
+        self.timelist = newTimelist
         self.start = self.timelist[0]
         self.end = self.timelist[-1]
         self.duration = self.end - self.start

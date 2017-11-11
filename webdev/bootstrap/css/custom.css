@@ -9,7 +9,8 @@
 }
 
 .nav-link.active  {
-  background-color: #f7f5f3;
+  font-weight: 500;
+  /*background-color: #f7f5f3;*/
   border-color: #f7f5f3;
   color: #030303;
 }
@@ -17,6 +18,6 @@
 .nav-link:hover,
 .nav-link:focus {
   color: #030303;
-  background-color: #f7f5f3;
+  /*background-color: #f7f5f3;*/
 }
 

@@ -1,8 +1,8 @@
-.container {
+/*.container {
   margin-left: 0%;
   width: 100%;
   background-color:#ffffff; 
-}
+}*/
 
 .nav-link {
   color:#696866;
@@ -21,3 +21,7 @@
   /*background-color: #f7f5f3;*/
 }
 
+a.indexlinks:hover {
+  color: #030303;
+  text-decoration: none;
+}

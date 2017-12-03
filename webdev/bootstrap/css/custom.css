@@ -3,6 +3,13 @@
   width: 100%;
   background-color:#ffffff; 
 }*/
+#test{
+  color: white;
+}
+
+.custom.container{
+
+}
 
 .nav-link {
   color:#696866;
@@ -21,7 +28,7 @@
   /*background-color: #f7f5f3;*/
 }
 
-a.indexlinks:hover {
+.indexlinks:hover {
   color: #030303;
   text-decoration: none;
 }

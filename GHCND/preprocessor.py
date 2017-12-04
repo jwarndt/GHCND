@@ -479,7 +479,12 @@ class StationPreprocessor(object):
             # now set the time bounds for each variable using its already built timelist (this is just to set variable.start, variable.end, and variable.duration)
             for var in station.variables:
                 station.variables[var].setTimeBounds()
-                
+    
+    
+    def exportToGeoJSON(self,filename):
+        
+    
+    
     def exportToShapefile(self,filename): # could export a shapefile with climate data for a timeslice included.. maybe later
         driver = ogr.GetDriverByName("ESRI Shapefile")
         dataSource = driver.CreateDataSource(filename)

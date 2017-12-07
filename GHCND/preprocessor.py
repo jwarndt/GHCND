@@ -536,13 +536,19 @@ class StationPreprocessor(object):
                 print("status: " + str(int((count / float(numberOfStations))*100)) + "% complete.")
     
     
-    def writeToDat(self,dir): # will write every station to a .dat file for gap filling in the ssa-mtm toolkit.
+    def writeToDat(self,out_dir): # will write every station to a .dat file for gap filling in the ssa-mtm toolkit.
+        outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"w")
         for station in self.stations:
             for var in station.variables:
                 out_filename = station.stationId + "_" + var + ".dat"
-                
-        return NotImplemented
-        
+                outmetadata.write(str(station.stationID) + "," + var + "," + str(station.variables[var].timelist[0]) + "," + str(station.variables[var].timelist[-1]) + "\n")
+                outfile = open(os.path.join(out_dir,out_filename),"w")
+                for value in station.variables[var].data:
+                	if np.isnan(value):
+                		outfile.write("NaN")
+                	else:
+                		outfile.write(value)
+                	outfile.write("\n")     
         
     
     

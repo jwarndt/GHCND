@@ -2,6 +2,7 @@ import datetime
 import calendar
 import os
 import numpy as np
+import time
 import osgeo.ogr as ogr
 import osgeo.osr as osr
 
@@ -428,6 +429,39 @@ class StationPreprocessor(object):
         
     def processDlyFiles(self,variablesOfInterest):
         """
+        parses the fixed width .dly files associated with each Station object present
+        in the StationPreprocessor. For each station, create a ClimateVar object
+        that will store the daily data and datetime objects.
+        
+        Data will only be processed for variables defined by variablesOfInterest.
+        If the station does not contain the variable, it will be dropped from
+        the StationPreprocessor.
+
+        Daily data values will only be included if...
+        1) the measurement did not fail the quality assurance check 
+        (indicated by the quality flag)
+        2) the measurement's source is from one of these:
+        - U.S. Cooperative Summary of the Day (NCDC DSI-3200)
+        - CDMP Cooperative Summary of the Day (NCDC DSI-3206)
+        - U.S. Cooperative Summary of the Day -- Transmitted 
+               via WxCoder3 (NCDC DSI-3207)
+        - U.S. Automated Surface Observing System (ASOS) 
+                   real-time data (since January 1, 2006)
+        - Environment Canada
+        - Official Global Climate Observing System (GCOS) or 
+                   other government-supplied data
+        - NCEI Reference Network Database (Climate Reference Network
+               and Regional Climate Reference Network)
+
+        Daily data values that fail the filter step described above
+        are marked as NaN
+
+        Additional filtering occurs when calculating monthly means (see Stats class).
+        (if there are more than five daily values marked as NaN, the monthly
+        mean is set to NaN). During this step, variables are also dropped
+        if more than 75% of the months in their record period are marked as
+        NaN
+
         Parameters
         ----------------
         variablesOfInterest: list
@@ -437,12 +471,19 @@ class StationPreprocessor(object):
         ------------
         None
         """
+        count = 0
+        numberOfStations = len(self.stations)
+        print("reading " + str(numberOfStations) + " stations")
         for station in self.stations: # iterate through the Station objects
+            s = time.time()
             infile = open(os.path.join(self.dlyFileDir,station.stationId + ".dly"))
             line = infile.readline()
+            datacount = 0
+            varinfile = False
             while line != "":
                 dataIdx = 21 # add 8 to get to the next data value
                 qFlagIdx = 27 # add 8 to get the qFlag for the next data value
+                sFlagIdx = 28 # add 8 to get the sFlag for the next data value. (source flag).
                 # only include data that does not fail the quality assurance check (QFLAG1 must be blank (i.e. line[27] == " "))
                 # other specifications could exist. For example, checking the MFLAG (measurement flag) or SFLAGE (source flag)
                 curYear = int(line[11:15].strip())
@@ -450,24 +491,30 @@ class StationPreprocessor(object):
                 curDay = 1
                 varName = line[17:21].strip() # TAVG, TMAX, TMIN, PRCP, etc...
                 if varName in variablesOfInterest: # only process the stations that have the variables of interest. Otherwise, skip them
+                    varinfile = True
                     if varName not in station.variables: # if variable not in the variables, create it
                         variable = ClimateVar(varName)
                     else:
                         variable = station.variables[varName] # else, point to the variable and append to its data
                         variable.setData(list(variable.data)) # need to cast to a list because we append instead of np.append(). We then cast to a numpy array at the end when we finally set the data
                         variable.setTimelist(list(variable.timelist)) # do the same with the timelist
-                    while dataIdx <= 261: # the last dataIdx is 261
+                    while dataIdx <= 261: # the last dataIdx is 261. iterate through the file line appending data and datetime objects to the ClimateVar object
                         if curDay <= calendar.monthrange(curYear,curMonth)[1]: # only process data in the time range of the month.
                             value = float(line[dataIdx:dataIdx+5].strip()) # the data value occupies 4 spaces in the txt, so slice appropriately.
                             qFlag = line[qFlagIdx] # the qFlag occupies only 1 space in the txt
-                            if qFlag == " " and value != -9999.0: # only include data passing quality assurance, and data that is NoData
+                            sFlag = line[sFlagIdx] # the sFlag occupies only 1 space in the txt
+                            # source flag must be coop summary of the day, asos network, environment canada, or global observing system
+                            if qFlag == " " and value != -9999.0 and sFlag in ["0","6","7","A","C","G","R"]: # only include data passing quality assurance, and data that is not NoData
                                 variable.data.append(value)
                                 variable.timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
+                                datacount+=1
                             else:
                                 variable.data.append(np.nan) # if it didn't pass the quality assurance or it was NoData, append NaN
                                 variable.timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
+                                datacount+=1
                         dataIdx+=8
                         qFlagIdx+=8
+                        sFlagIdx+=8
                         curDay+=1
                     if varName not in station.variables: # the variable wasn't found in the Station's vars, append the newly created variable, otherwise the variable was only modified.
                         station.variables[varName] = variable
@@ -476,12 +523,26 @@ class StationPreprocessor(object):
                     variable.setTimelist(np.array(variable.timelist)) # to set the list to an np.array
                 line = infile.readline()
             infile.close()
+            print("file processed: " + (os.path.join(self.dlyFileDir,station.stationId + ".dly")) + " time to process: " + str(time.time() - s))
+            print("var in file: " + str(varinfile) + " data values read: " + str(datacount))
+            if varinfile == False: # remove the station from the stations list
+                print("deleted station: " + str(self.stations[count].stationId))
+                del self.stations[count]
             # now set the time bounds for each variable using its already built timelist (this is just to set variable.start, variable.end, and variable.duration)
             for var in station.variables:
                 station.variables[var].setTimeBounds()
+            count+=1
+            if numberOfStations % count == 50: # print a status report every so often. count is the number of stations processed
+                print("status: " + str(int((count / float(numberOfStations))*100)) + "% complete.")
     
     
-    def exportToGeoJSON(self,filename):
+    def writeToDat(self,dir): # will write every station to a .dat file for gap filling in the ssa-mtm toolkit.
+        for station in self.stations:
+            for var in station.variables:
+                out_filename = station.stationId + "_" + var + ".dat"
+                
+        return NotImplemented
+        
         
     
     

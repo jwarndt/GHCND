@@ -42,6 +42,7 @@ def __calculateMonthlyMean(climateVariable):
     monthlyMeans = np.array([])
     newTimelist = np.array([])
     while timestep < len(climateVariable.timelist):
+        curDatetime = climateVariable.timelist[timestep]
         curDay = climateVariable.timelist[timestep].day
         curMonth = climateVariable.timelist[timestep].month
         curYear = climateVariable.timelist[timestep].year
@@ -54,19 +55,33 @@ def __calculateMonthlyMean(climateVariable):
                 monthlyMeans = np.append(monthlyMeans,np.nansum(dataChunk))
             elif climateVariable.name in ["TMAX","TMIN","TAVG"]: # for tmin, tmax, and tavg it's the mean
                 monthlyMeans = np.append(monthlyMeans,np.nanmean(dataChunk))
-        newTimelist = np.append(newTimelist,datetime.datetime(year=curYear,month=curMonth,day=15))
+        newTimelist = np.append(newTimelist,datetime.datetime(year=curYear,month=curMonth,day=1))
         timestep+=daysInMonth
-    climateVariable.setData(monthlyMeans)
-    climateVariable.setTimelist(newTimelist)
-    climateVariable.dataDescription = "monthly mean"
+        if timestep < len(climateVariable.timelist): # need to check if there are missing months
+            nextDatetime = climateVariable.data[timestep] # the next month of data is this. Check to see if gaps need to be filled with nan
+            if  (nextDatetime - curDatetime) == datetime.timedelta(days=daysInMonth): # if the next datetime object follows the current datetime object just processed, all is well
+                pass
+            else: # this means there are months of missing data. 
+                missingDatetime = curDatetime + datetime.timedelta(calendar.monthrange(curDatetime.year, curDatetime.month)[1])
+                while nextDatetime != missingDatetime:# iteratively add missing months until we hit the month that we know there is data for. 
+                    monthlyMeans = np.append(monthlyMeans, np.nan)
+                    newTimelist = np.append(newTimelist, missingDatetime)
+                    missingDatetime = missingDatetime + datetime.timedelta(calendar.monthrange(curDatetime.year, curDatetime.month)[1])
+    if (np.isnan(monthlyMeans).sum() / float(len(monthlyMeans))) > 0.75: # if more than 75% of the monthly values are missing. data is invalid, so remove
+        climateVariable = None
+    else:
+        climateVariable.setData(monthlyMeans)
+        climateVariable.setTimelist(newTimelist)
+        climateVariable.dataDescription = "monthly mean"
 
 def __calculateSeasonalMean():
-    pass
+    return NotImplemented
 
 def __calculateAnnualMean():
-    pass
+    return NotImplemented
 
 def calculateStandardizedAnomalies(stationCollection,timeframe,baselinePeriod):
+    return NotImplemented
     """
     Parameters
     ------------

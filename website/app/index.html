@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="  width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+  <title>Midwest Climate Explorer App</title>
+    
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <!-- bootstrap css -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+  <!-- ArcGIS JS 4 -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.5/esri/css/main.css">
+
+  <!-- custom css -->
+  <link rel="stylesheet" href="./css/app.css">
+
+  <!-- ArcGIS JS 4.x -->
+  <script src="https://js.arcgis.com/4.5/"></script>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "dojo/domReady!"
+    ], function(Map, MapView) {
+
+      var map = new Map({
+        basemap: "topo"
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        zoom: 5,
+        center: [-93, 42.5] // longitude, latitude
+      });
+
+    });
+  </script>
+
+</head>
+
+<body>
+  <div class="pos-f-t">
+  <div class="collapse" id="navbarToggleExternalContent">
+    <div class="bg-dark p-4">
+      <h4 class="text-white">Collapsed content</h4>
+      <span class="text-muted">Toggleable via the navbar brand.</span>
+    </div>
+  </div>
+  
+</div>
+  <nav class="navbar navbar-expand-md navbar-dark" id="mainNavBar">
+    <ul class="navbar-nav">
+      <button class="navbar-toggle" type="button" data-toggle="collapse" id="optionsToggle">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <li class="nav-item">
+        <a class="nav-link" id="appName" href="../index.html">Midwest Climate Explorer</a>
+      </li>
+    </ul>
+    <span class="navbar-text font-weight-light font-italic">A tool for visualizing and analyzing surface-level climate data in the midwest
+        </span>
+  </nav>
+
+  <div id="viewDiv"></div>
+
+  <script type="text/javascript">
+    var dojoConfig = {
+      packages: [{
+        name: "bootstrap",
+        location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/vendor/dojo-bootstrap"
+      },
+      {
+        name: "calcite-maps",
+        location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/js/dojo"
+        //location: location.pathname.replace(/\/[^/]+$/, "") + "./../../lib/js/dojo"
+      },
+      {
+        name: "calcite-settings",
+        location: location.pathname.replace(/\/[^/]+$/, "") + "/js"
+      }]
+    };
+  </script>
+
+  <!-- bootstrap js -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+</body>

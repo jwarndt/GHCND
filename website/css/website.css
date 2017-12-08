@@ -1,0 +1,77 @@
+#mainNavBar {
+    /*image options:
+    background-image: url("../images/lake-superior-2093792_1920.jpg");
+    background-position: 0% 50%; 
+
+    background-image: url("../images/bwca-1150305_1920.jpg");
+    background-position: 0% 20%;
+
+    background-image: url("../images/minneapolis-926411_1920.jpg");
+    background-position: 0% 25%;
+
+    */
+    background-image: url("../images/lake-superior-2093792_1920.jpg");
+    background-position: 0% 40%;
+    background-color: black;
+}
+
+#mainContainer {
+    margin-left: 4%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    border: none;
+}
+
+#secondaryContainer {
+    padding-top: 15px;
+    width: 85%;
+}
+
+.colHead {
+    font-weight: bold;
+}
+
+.colText {
+    font-weight: normal;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+#contributorJumbo {
+    margin-top: 100px;
+    background-color: #f2f0ee;
+
+}
+
+#contributorContainer {
+    align-content: center;
+}
+
+#dataPageAccordion {
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.dataItem {
+    padding:8px;
+}
+
+#leftNavBar {
+    margin: 10px;
+    background-color: #f2f0ee;
+    width: 150px;
+}
+
+#mainDataPageContainer {
+    width:98%;
+    margin-top: 10px;
+    max-width: none;
+    background-color: white;
+    border: solid;
+}
+
+#textContainer {
+    width: 100%;
+    background-color: red;
+    border: solid;
+}

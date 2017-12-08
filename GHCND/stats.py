@@ -30,17 +30,17 @@ def calculateMean(stationCollection,timeframe):
     for station in stationCollection.stations: # for each station in the StationPreprocessor
         for varName in station.variables: # for each climate variable in the station object
             if timeframe == "month":
-                self.__calculateMonthlyMean(station.variables[varName])
+                __calculateMonthlyMean(station.variables[varName])
             elif timeframe == "season":
-                self.__calculateSeasonalMean(station.variables[varName])
+                __calculateSeasonalMean(station.variables[varName])
             else:           
-                self.__calculateAnnualMean(station.variables[varName])
+                __calculateAnnualMean(station.variables[varName])
 
 def __calculateMonthlyMean(climateVariable):
     timestep = 0
     
-    monthlyMeans = np.array([])
-    newTimelist = np.array([])
+    monthlyMeans = []
+    newTimelist = []
     while timestep < len(climateVariable.timelist):
         curDatetime = climateVariable.timelist[timestep]
         curDay = climateVariable.timelist[timestep].day
@@ -49,29 +49,31 @@ def __calculateMonthlyMean(climateVariable):
         daysInMonth = calendar.monthrange(curYear,curMonth)[1] # number of days in the current month
         dataChunk = climateVariable.data[timestep:timestep+daysInMonth]
         if np.isnan(dataChunk).sum() > 5: # set the monthly mean to missing if more than 5 days of data are missing in the month
-            monthlyMeans = np.append(monthlyMeans,np.nan)
+            monthlyMeans.append(np.nan)
         else:
             if climateVariable.name == "PRCP": # for prcp, it's cumulative
-                monthlyMeans = np.append(monthlyMeans,np.nansum(dataChunk))
+                monthlyMeans.append(np.nansum(dataChunk))
             elif climateVariable.name in ["TMAX","TMIN","TAVG"]: # for tmin, tmax, and tavg it's the mean
-                monthlyMeans = np.append(monthlyMeans,np.nanmean(dataChunk))
-        newTimelist = np.append(newTimelist,datetime.datetime(year=curYear,month=curMonth,day=1))
+                monthlyMeans.append(np.nanmean(dataChunk))
+        newTimelist.append(datetime.datetime(year=curYear,month=curMonth,day=1))
         timestep+=daysInMonth
         if timestep < len(climateVariable.timelist): # need to check if there are missing months
-            nextDatetime = climateVariable.data[timestep] # the next month of data is this. Check to see if gaps need to be filled with nan
+            nextDatetime = climateVariable.timelist[timestep] # the next month of data is this. Check to see if gaps need to be filled with nan
             if  (nextDatetime - curDatetime) == datetime.timedelta(days=daysInMonth): # if the next datetime object follows the current datetime object just processed, all is well
                 pass
             else: # this means there are months of missing data. 
-                missingDatetime = curDatetime + datetime.timedelta(calendar.monthrange(curDatetime.year, curDatetime.month)[1])
-                while nextDatetime != missingDatetime:# iteratively add missing months until we hit the month that we know there is data for. 
-                    monthlyMeans = np.append(monthlyMeans, np.nan)
-                    newTimelist = np.append(newTimelist, missingDatetime)
-                    missingDatetime = missingDatetime + datetime.timedelta(calendar.monthrange(curDatetime.year, curDatetime.month)[1])
+                missingDatetime = curDatetime + datetime.timedelta(days=calendar.monthrange(curDatetime.year, curDatetime.month)[1])
+                while nextDatetime != missingDatetime: # iteratively add missing months until we hit the month that we know there is data for. 
+                    monthlyMeans.append(np.nan)
+                    newTimelist.append(missingDatetime)
+                    missingDatetime = missingDatetime + datetime.timedelta(days=calendar.monthrange(missingDatetime.year, missingDatetime.month)[1])
     if (np.isnan(monthlyMeans).sum() / float(len(monthlyMeans))) > 0.75: # if more than 75% of the monthly values are missing. data is invalid, so remove
         climateVariable = None
+    elif newTimelist[-1].year < 2016: # if the station was not operating past the year 2015, consider the data invalid
+        climateVariable = None
     else:
-        climateVariable.setData(monthlyMeans)
-        climateVariable.setTimelist(newTimelist)
+        climateVariable.setData(monthlyMeans) # set the data
+        climateVariable.setTimelist(newTimelist) # set the timelist
         climateVariable.dataDescription = "monthly mean"
 
 def __calculateSeasonalMean():

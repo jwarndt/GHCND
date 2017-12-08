@@ -384,8 +384,8 @@ class StationPreprocessor(object):
         infile = open(self.stationsFile,"r")
         line = infile.readline()
         while line != "":
-            newStation = None
             if line[:2] in self.countries:
+                newStation = None
                 name = line[41:71].strip() 
                 stationId = line[:11].strip()
                 c = line[:2]
@@ -422,7 +422,6 @@ class StationPreprocessor(object):
                     self.stations.append(newStation)
             line = infile.readline()
         infile.close()
-        self.stations = np.array(self.stations) # set the station list to an np.array
             
     def clearStations(self):
         self.stations = []
@@ -472,6 +471,7 @@ class StationPreprocessor(object):
         None
         """
         count = 0
+        newstationlist = [] # this station list will only contain stations that have recorded data for the variablesOfInterest. (essentially removing stations that didn;t record data we wanted)
         numberOfStations = len(self.stations)
         print("reading " + str(numberOfStations) + " stations")
         for station in self.stations: # iterate through the Station objects
@@ -492,12 +492,9 @@ class StationPreprocessor(object):
                 varName = line[17:21].strip() # TAVG, TMAX, TMIN, PRCP, etc...
                 if varName in variablesOfInterest: # only process the stations that have the variables of interest. Otherwise, skip them
                     varinfile = True
-                    if varName not in station.variables: # if variable not in the variables, create it
-                        variable = ClimateVar(varName)
-                    else:
-                        variable = station.variables[varName] # else, point to the variable and append to its data
-                        variable.setData(list(variable.data)) # need to cast to a list because we append instead of np.append(). We then cast to a numpy array at the end when we finally set the data
-                        variable.setTimelist(list(variable.timelist)) # do the same with the timelist
+                    if varName not in station.variables: # if variable not in the station variables, create it
+                        station.variables[varName] = ClimateVar(varName)
+                        station.variables[varName].dataDescription = "daily"
                     while dataIdx <= 261: # the last dataIdx is 261. iterate through the file line appending data and datetime objects to the ClimateVar object
                         if curDay <= calendar.monthrange(curYear,curMonth)[1]: # only process data in the time range of the month.
                             value = float(line[dataIdx:dataIdx+5].strip()) # the data value occupies 4 spaces in the txt, so slice appropriately.
@@ -505,43 +502,36 @@ class StationPreprocessor(object):
                             sFlag = line[sFlagIdx] # the sFlag occupies only 1 space in the txt
                             # source flag must be coop summary of the day, asos network, environment canada, or global observing system
                             if qFlag == " " and value != -9999.0 and sFlag in ["0","6","7","A","C","G","R"]: # only include data passing quality assurance, and data that is not NoData
-                                variable.data.append(value)
-                                variable.timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
+                                station.variables[varName].data.append(value)
+                                station.variables[varName].timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
                                 datacount+=1
                             else:
-                                variable.data.append(np.nan) # if it didn't pass the quality assurance or it was NoData, append NaN
-                                variable.timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
+                                station.variables[varName].data.append(np.nan) # if it didn't pass the quality assurance or it was NoData, append NaN
+                                station.variables[varName].timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
                                 datacount+=1
                         dataIdx+=8
                         qFlagIdx+=8
                         sFlagIdx+=8
                         curDay+=1
-                    if varName not in station.variables: # the variable wasn't found in the Station's vars, append the newly created variable, otherwise the variable was only modified.
-                        station.variables[varName] = variable
-                        station.variables[varName].dataDescription = "daily"
-                    variable.setData(np.array(variable.data)) # to set the list to an np.array
-                    variable.setTimelist(np.array(variable.timelist)) # to set the list to an np.array
+                    station.variables[varName].setTimeBounds()
                 line = infile.readline()
             infile.close()
-            print("file processed: " + (os.path.join(self.dlyFileDir,station.stationId + ".dly")) + " time to process: " + str(time.time() - s))
-            print("var in file: " + str(varinfile) + " data values read: " + str(datacount))
-            if varinfile == False: # remove the station from the stations list
-                print("deleted station: " + str(self.stations[count].stationId))
-                del self.stations[count]
-            # now set the time bounds for each variable using its already built timelist (this is just to set variable.start, variable.end, and variable.duration)
-            for var in station.variables:
-                station.variables[var].setTimeBounds()
+            #print("file processed: " + (os.path.join(self.dlyFileDir,station.stationId + ".dly")) + " time to process: " + str(time.time() - s))
             count+=1
-            if numberOfStations % count == 50: # print a status report every so often. count is the number of stations processed
+            if count % 100 == 0: # print a status report every so often. count is the number of stations processed
+                print("done with " + str(count) + " stations")
                 print("status: " + str(int((count / float(numberOfStations))*100)) + "% complete.")
-    
+            if len(station.variables) > 0: # append the station to the new list only if it has variables with recorded data
+                newstationlist.append(station)
+        self.stations = newstationlist
+                                                
     
     def writeToDat(self,out_dir): # will write every station to a .dat file for gap filling in the ssa-mtm toolkit.
         outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"w")
         for station in self.stations:
             for var in station.variables:
                 out_filename = station.stationId + "_" + var + ".dat"
-                outmetadata.write(str(station.stationID) + "," + var + "," + str(station.variables[var].timelist[0]) + "," + str(station.variables[var].timelist[-1]) + "\n")
+                outmetadata.write(str(station) + "," + str(station.variables[var]) + "\n") # keep a log of meteadata about each file. this includes the station and variable information
                 outfile = open(os.path.join(out_dir,out_filename),"w")
                 for value in station.variables[var].data:
                 	if np.isnan(value):
@@ -644,7 +634,7 @@ class StationPreprocessor(object):
 class ClimateVar(object):
     
     def __init__(self,initName):
-        self.name = initName
+        self.name = initName #TMAX, TMIN, PRCP, etc..
         self.dataDescription = None # should be "daily", "monthly mean", "seasonal mean", "annual mean", "monthly anomaly"
         
         self.start = None
@@ -687,9 +677,10 @@ class ClimateVar(object):
         
     def setTimelist(self,newTimelist):
         self.timelist = newTimelist
-        self.start = self.timelist[0]
-        self.end = self.timelist[-1]
-        self.duration = self.end - self.start
+        self.setTimeBounds()
+
+    def __str__(self):
+        return self.name + "," + self.dataDescription + "," + str(self.start) + "," + str(self.end)
             
 
 class Station(object):
@@ -724,4 +715,6 @@ class Station(object):
         self.crn = initCRN
         self.gsn = initGSN
         self.wmoId = initWMOId
-        
+
+    def __str__(self):
+        return str(self.stationId) + "," + self.country + "," + self.state + "," + str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + "," + str(self.hcn) + "," + str(self.crn) + "," + str(self.gsn) + "," + str(self.wmoId)

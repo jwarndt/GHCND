@@ -1,5 +1,5 @@
 # ignore python notebook checkpoints
-.ipynb_checkpoints
+*.ipynb_checkpoints
 
 # ignore compiled python
-.pyc
+*.pyc

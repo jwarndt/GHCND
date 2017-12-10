@@ -436,6 +436,10 @@ class StationPreprocessor(object):
         If the station does not contain the variable, it will be dropped from
         the StationPreprocessor.
 
+        running this function when the station preprocessor has many countries/states
+        consumes a lot of RAM. So in cases where you need to process many states/countries
+        chunk them up.
+
         Daily data values will only be included if...
         1) the measurement did not fail the quality assurance check 
         (indicated by the quality flag)
@@ -492,16 +496,15 @@ class StationPreprocessor(object):
                 varName = line[17:21].strip() # TAVG, TMAX, TMIN, PRCP, etc...
                 if varName in variablesOfInterest: # only process the stations that have the variables of interest. Otherwise, skip them
                     varinfile = True
-                    if varName not in station.variables: # if variable not in the station variables, create it
-                        station.variables[varName] = ClimateVar(varName)
-                        station.variables[varName].dataDescription = "daily"
+                    if varName not in station.variables: # if variable not already in the station variables, create it
+                        station.variables[varName] = ClimateVar(varName, "daily")
                     while dataIdx <= 261: # the last dataIdx is 261. iterate through the file line appending data and datetime objects to the ClimateVar object
                         if curDay <= calendar.monthrange(curYear,curMonth)[1]: # only process data in the time range of the month.
                             value = float(line[dataIdx:dataIdx+5].strip()) # the data value occupies 4 spaces in the txt, so slice appropriately.
                             qFlag = line[qFlagIdx] # the qFlag occupies only 1 space in the txt
                             sFlag = line[sFlagIdx] # the sFlag occupies only 1 space in the txt
                             # source flag must be coop summary of the day, asos network, environment canada, or global observing system
-                            if qFlag == " " and value != -9999.0 and sFlag in ["0","6","7","A","C","G","R"]: # only include data passing quality assurance, and data that is not NoData
+                            if qFlag == " " and value != -9999 and sFlag in ["0","6","7","A","C","G","R"]: # only include data passing quality assurance, and data that is not NoData
                                 station.variables[varName].data.append(value)
                                 station.variables[varName].timelist.append(datetime.date(year=curYear,month=curMonth,day=curDay))
                                 datacount+=1
@@ -513,21 +516,36 @@ class StationPreprocessor(object):
                         qFlagIdx+=8
                         sFlagIdx+=8
                         curDay+=1
-                    station.variables[varName].setTimeBounds()
                 line = infile.readline()
             infile.close()
             #print("file processed: " + (os.path.join(self.dlyFileDir,station.stationId + ".dly")) + " time to process: " + str(time.time() - s))
             count+=1
-            if count % 100 == 0: # print a status report every so often. count is the number of stations processed
-                print("done with " + str(count) + " stations")
-                print("status: " + str(int((count / float(numberOfStations))*100)) + "% complete.")
+            if count % 200 == 0: # print a status report every so often. count is the number of stations processed
+                print("done with " + str(count) + " stations. " + str(int((count / float(numberOfStations))*100)) + "% complete.")
             if len(station.variables) > 0: # append the station to the new list only if it has variables with recorded data
                 newstationlist.append(station)
-        self.stations = newstationlist
+        
+        finalStationList = []
+        for s in newstationlist: # filter out all variables with only nan values and all stations with only nan values
+            newVarDict = {} # rebuild the station's variable dictionary. Only include variables that include valid values (not all nan)
+            for v in s.variables:
+                if np.nansum(s.variables[v].data) > 0: # if there are real values in the data (not just NaN)
+                    newVarDict[v] = ClimateVar(v,"daily")
+                    newVarDict[v].setAll(s.variables[v].data, s.variables[v].timelist)
+            s.variables = newVarDict
+            if s not in finalStationList and len(s.variables) > 0: # only append the station if it has variables that don't have all nan
+                finalStationList.append(s)
+        self.stations = finalStationList
+        print("done reading stations. " + str(len(self.stations)) + " stations left after filtering")
                                                 
     
-    def writeToDat(self,out_dir): # will write every station to a .dat file for gap filling in the ssa-mtm toolkit.
-        outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"w")
+    def writeToDat(self,out_dir):
+        """will write every station in the StationPreprocessor to a .dat file 
+        for gap filling in the ssa-mtm toolkit."""
+        if os.path.isfile(os.path.join(out_dir,"metadata_log.txt")): # the log file already exists, append to it.
+            outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"a")
+        else:
+            outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"w")
         for station in self.stations:
             for var in station.variables:
                 out_filename = station.stationId + "_" + var + ".dat"
@@ -537,7 +555,7 @@ class StationPreprocessor(object):
                 	if np.isnan(value):
                 		outfile.write("NaN")
                 	else:
-                		outfile.write(value)
+                		outfile.write(str(value))
                 	outfile.write("\n")     
         
     
@@ -545,10 +563,10 @@ class StationPreprocessor(object):
     def exportToShapefile(self,filename): # could export a shapefile with climate data for a timeslice included.. maybe later
         driver = ogr.GetDriverByName("ESRI Shapefile")
         dataSource = driver.CreateDataSource(filename)
-        srs = osr.SpatialReference()
-        srs.ImportFromEPSG(4326)
+        spatialRef = osr.SpatialReference()
+        spatialRef.SetWellKnownGeogCS("WGS84") # ImportFromEPSG() was not working. more gdal troubles.. :(
         layerName = filename.split("/")[-1][:-4] # the layerName is the shapefile name without the path and its file extension
-        layer = dataSource.CreateLayer(layerName, srs, ogr.wkbPoint)
+        layer = dataSource.CreateLayer(layerName, spatialRef, ogr.wkbPoint)
         # create the fields
         layer.CreateField(ogr.FieldDefn("name", ogr.OFTString))
         layer.CreateField(ogr.FieldDefn("stationID", ogr.OFTString))
@@ -631,11 +649,18 @@ class StationPreprocessor(object):
         # close the dataSource
         dataSource = None
 
+        # dont know why the spatial reference isn't being set when I create the layer.
+        # so, mannually edit the .prj file.
+        spatialRef.MorphToESRI()
+        file = open(filename[:-4] + ".prj", 'w')
+        file.write(spatialRef.ExportToWkt())
+        file.close()
+
 class ClimateVar(object):
     
-    def __init__(self,initName):
+    def __init__(self,initName,initDataDescription):
         self.name = initName #TMAX, TMIN, PRCP, etc..
-        self.dataDescription = None # should be "daily", "monthly mean", "seasonal mean", "annual mean", "monthly anomaly"
+        self.dataDescription = initDataDescription # should be "daily", "monthly mean", "seasonal mean", "annual mean", "monthly anomaly"
         
         self.start = None
         self.end = None
@@ -648,11 +673,6 @@ class ClimateVar(object):
     
     def setName(self,newName):
         self.name = newName
-        
-    def setTimeBounds(self):
-        self.start = self.timelist[0]
-        self.end = self.timelist[-1]
-        self.duration = self.end - self.start
         
     def getStart(self):
         return self.start
@@ -677,7 +697,16 @@ class ClimateVar(object):
         
     def setTimelist(self,newTimelist):
         self.timelist = newTimelist
-        self.setTimeBounds()
+        self.start = self.timelist[0]
+        self.end = self.timelist[-1]
+        self.duration = self.end - self.start
+
+    def setAll(self,newData,newTimelist):
+        """
+        will set all relevant attributes of the ClimateVar
+        """
+        self.setData(newData)
+        self.setTimelist(newTimelist)
 
     def __str__(self):
         return self.name + "," + self.dataDescription + "," + str(self.start) + "," + str(self.end)

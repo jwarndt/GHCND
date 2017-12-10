@@ -72,8 +72,7 @@ def __calculateMonthlyMean(climateVariable):
     elif newTimelist[-1].year < 2016: # if the station was not operating past the year 2015, consider the data invalid
         climateVariable = None
     else:
-        climateVariable.setData(monthlyMeans) # set the data
-        climateVariable.setTimelist(newTimelist) # set the timelist
+        climateVariable.setAll(monthlyMeans, newTimelist) # set all the ClimateVar's attributes
         climateVariable.dataDescription = "monthly mean"
 
 def __calculateSeasonalMean():

@@ -5,20 +5,12 @@
   <meta name="viewport" content="  width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
   <title>Midwest Climate Explorer App</title>
+  
+  <!-- calcite maps bootstrap -->
+  <link rel='stylesheet' href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-bootstrap.min-v0.5.css">
     
-  <style>
-    html,
-    body,
-    #viewDiv {
-      padding: 0;
-      margin: 0;
-      height: 100%;
-      width: 100%;
-    }
-  </style>
-
-  <!-- bootstrap css -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <!-- calcite maps -->
+  <link rel="stylesheet" href="https://esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.5.css">
 
   <!-- ArcGIS JS 4 -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.5/esri/css/main.css">
@@ -26,54 +18,44 @@
   <!-- custom css -->
   <link rel="stylesheet" href="./css/app.css">
 
-  <!-- ArcGIS JS 4.x -->
-  <script src="https://js.arcgis.com/4.5/"></script>
-
-  <script>
-    require([
-      "esri/Map",
-      "esri/views/MapView",
-      "dojo/domReady!"
-    ], function(Map, MapView) {
-
-      var map = new Map({
-        basemap: "topo"
-      });
-
-      var view = new MapView({
-        container: "viewDiv",
-        map: map,
-        zoom: 5,
-        center: [-93, 42.5] // longitude, latitude
-      });
-
-    });
-  </script>
-
 </head>
 
 <body>
-  <div class="pos-f-t">
-  <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-      <h4 class="text-white">Collapsed content</h4>
-      <span class="text-muted">Toggleable via the navbar brand.</span>
+
+  <nav class="navbar calcite-navbar navbar-fixed-top" id="mainNavBar">
+    <!-- Menu -->
+    <div class="dropdown calcite-dropdown" role="presentation">
+      <a class="dropdown-toggle" role="menubutton" aria-haspopup="true" aria-expanded="false" tabindex="0">
+        <div class="calcite-dropdown-toggle">
+          <span class="sr-only">Toggle dropdown menu</span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </a>
+      <ul class="dropdown-menu" tabindex="0" role="menu">
+        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
+        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelLegend" aria-haspopup="true"><span class="glyphicon glyphicon-list-alt"></span> Legend</a></li>
+        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelLayers" aria-haspopup="true"><span class="glyphicon glyphicon-list"></span> Layers</a></li>
+        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelPrint" aria-haspopup="true"><span class="glyphicon glyphicon-print"></span> Print</a></li>
+        <li><a role="menuitem" tabindex="0" href="#" id="calciteToggleNavbar" aria-haspopup="true"><span class="glyphicon glyphicon-fullscreen"></span> Full Map</a></li>
+      </ul>
     </div>
-  </div>
-  
-</div>
-  <nav class="navbar navbar-expand-md navbar-dark" id="mainNavBar">
-    <ul class="navbar-nav">
-      <button class="navbar-toggle" type="button" data-toggle="collapse" id="optionsToggle">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    
-      <li class="nav-item">
-        <a class="nav-link" id="appName" href="../index.html">Midwest Climate Explorer</a>
+    <!-- Title -->
+    <div class="calcite-title calcite-overflow-hidden">
+      <a class="calcite-title-main appName" href="../index.html">Midwest Climate Explorer</a>
+      <span class="calcite-title-divider hidden-xs" style="color:white"></span>
+      <span class="calcite-title-sub hidden-xs" style="color:white;font-style:italic;font-weight:100">A tool for visualizing and analyzing surface-level climate data in the midwest</span>
+    </div>
+    <!-- Nav -->
+    <ul class="nav navbar-nav calcite-nav">
+      <li>
+        <div class="calcite-navbar-search calcite-search-expander" role="presentation" tabindex="-1">
+          <div id="searchWidgetDiv" tabindex="0" class="esri-search esri-widget"><div role="presentation" class="esri-search__container esri-search--warning"><div class="esri-menu esri-search__sources-menu" role="menu"></div><div class="esri-search__input-container"><form class="esri-search__form" role="search"><input type="text" placeholder="Find address or place" aria-label="Search" autocomplete="off" tabindex="0" class="esri-search__input" aria-haspopup="true" id="searchWidgetDiv_input" role="textbox"></form><div class="esri-menu esri-search__suggestions-menu" role="menu"></div></div><div role="button" title="Search" class="esri-search__submit-button esri-widget-button" tabindex="0"><span aria-hidden="true" role="presentation" class="esri-icon-search"></span><span class="esri-icon-font-fallback-text">Search</span></div><div class="esri-menu esri-search__warning-menu"><div class="esri-search__warning-body"><div><span aria-hidden="true" class="esri-icon-notice-triangle"></span><span class="esri-search__no-value-text">Please enter a search term.</span></div></div></div></div></div>
+        </div>
       </li>
     </ul>
-    <span class="navbar-text font-weight-light font-italic">A tool for visualizing and analyzing surface-level climate data in the midwest
-        </span>
   </nav>
 
   <div id="viewDiv"></div>
@@ -82,23 +64,19 @@
     var dojoConfig = {
       packages: [{
         name: "bootstrap",
-        location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/vendor/dojo-bootstrap"
+        location: "https://esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap"
       },
       {
         name: "calcite-maps",
-        location: location.pathname.replace(/\/[^/]+$/, "") + "./../../dist/js/dojo"
-        //location: location.pathname.replace(/\/[^/]+$/, "") + "./../../lib/js/dojo"
-      },
-      {
-        name: "calcite-settings",
-        location: location.pathname.replace(/\/[^/]+$/, "") + "/js"
+        location: "https://esri.github.io/calcite-maps/dist/js/dojo"
       }]
     };
   </script>
 
-  <!-- bootstrap js -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+  <!-- ArcGIS JS 4.x -->
+  <script src="https://js.arcgis.com/4.5/"></script>
+  
+  <!-- custom JS -->
+  <script src="./javascript/app.js"></script>
 
 </body>

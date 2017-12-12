@@ -22,26 +22,7 @@
 
 <body>
 
-  <nav class="navbar calcite-navbar navbar-fixed-top" id="mainNavBar">
-    <!-- Menu -->
-    <div class="dropdown calcite-dropdown" role="presentation">
-      <a class="dropdown-toggle" role="menubutton" aria-haspopup="true" aria-expanded="false" tabindex="0">
-        <div class="calcite-dropdown-toggle">
-          <span class="sr-only">Toggle dropdown menu</span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </a>
-      <ul class="dropdown-menu" tabindex="0" role="menu">
-        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelBasemaps" aria-haspopup="true"><span class="glyphicon glyphicon-th-large"></span> Basemaps</a></li>
-        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelLegend" aria-haspopup="true"><span class="glyphicon glyphicon-list-alt"></span> Legend</a></li>
-        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelLayers" aria-haspopup="true"><span class="glyphicon glyphicon-list"></span> Layers</a></li>
-        <li><a role="menuitem" tabindex="0" href="#" data-target="#panelPrint" aria-haspopup="true"><span class="glyphicon glyphicon-print"></span> Print</a></li>
-        <li><a role="menuitem" tabindex="0" href="#" id="calciteToggleNavbar" aria-haspopup="true"><span class="glyphicon glyphicon-fullscreen"></span> Full Map</a></li>
-      </ul>
-    </div>
+  <nav class="navbar calcite-navbar navbar-fixed-top calcite-text-light" id="mainNavBar">
     <!-- Title -->
     <div class="calcite-title calcite-overflow-hidden">
       <a class="calcite-title-main appName" href="../index.html">Midwest Climate Explorer</a>
@@ -49,13 +30,13 @@
       <span class="calcite-title-sub hidden-xs" style="color:white;font-style:italic;font-weight:100">A tool for visualizing and analyzing surface-level climate data in the midwest</span>
     </div>
     <!-- Nav -->
-    <ul class="nav navbar-nav calcite-nav">
+    <ul class="calcite-nav nav navbar-nav">                                    
       <li>
         <div class="calcite-navbar-search calcite-search-expander" role="presentation" tabindex="-1">
-          <div id="searchWidgetDiv" tabindex="0" class="esri-search esri-widget"><div role="presentation" class="esri-search__container esri-search--warning"><div class="esri-menu esri-search__sources-menu" role="menu"></div><div class="esri-search__input-container"><form class="esri-search__form" role="search"><input type="text" placeholder="Find address or place" aria-label="Search" autocomplete="off" tabindex="0" class="esri-search__input" aria-haspopup="true" id="searchWidgetDiv_input" role="textbox"></form><div class="esri-menu esri-search__suggestions-menu" role="menu"></div></div><div role="button" title="Search" class="esri-search__submit-button esri-widget-button" tabindex="0"><span aria-hidden="true" role="presentation" class="esri-icon-search"></span><span class="esri-icon-font-fallback-text">Search</span></div><div class="esri-menu esri-search__warning-menu"><div class="esri-search__warning-body"><div><span aria-hidden="true" class="esri-icon-notice-triangle"></span><span class="esri-search__no-value-text">Please enter a search term.</span></div></div></div></div></div>
+          <div id="searchNavDiv" tabindex="0"></div>
         </div>
       </li>
-    </ul>
+    </ul>  
   </nav>
 
   <div id="viewDiv"></div>

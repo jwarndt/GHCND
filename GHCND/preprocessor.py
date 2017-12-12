@@ -1,8 +1,9 @@
 import datetime
 import calendar
 import os
-import numpy as np
 import time
+import json
+import numpy as np
 import osgeo.ogr as ogr
 import osgeo.osr as osr
 
@@ -557,9 +558,26 @@ class StationPreprocessor(object):
                 	else:
                 		outfile.write(str(value))
                 	outfile.write("\n")     
-        
-    
-    
+
+    def exportToJSON(self,filename):
+        outfile = open(filename,"w")
+        """ 
+        will write the station and climate var data to json 
+        this data is not geographic though. it will be queried based
+        on stationId
+        """
+        outdata = {}
+        for station in self.stations:
+            outdata[station.stationId] = {}
+            for var in station.variables:
+                # datetime objects and numpy arrays are not json serializeable
+                outdata[station.stationId][var] = {"data": [val for val in station.variables[var].data],
+                                                    "timelist": [str(time)[:-9] for time in station.variables[var].timelist]}
+        json_string = json.dumps(outdata)
+        outfile.write(json_string)
+        outfile.close()
+
+
     def exportToShapefile(self,filename): # could export a shapefile with climate data for a timeslice included.. maybe later
         driver = ogr.GetDriverByName("ESRI Shapefile")
         dataSource = driver.CreateDataSource(filename)

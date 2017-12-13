@@ -3,6 +3,7 @@ require([
     "esri/Map",
     "esri/Basemap",
     "esri/views/MapView",
+    "esri/widgets/BasemapToggle",
     "esri/layers/FeatureLayer",
 
     "calcite-maps/calcitemaps-v0.5",
@@ -15,8 +16,32 @@ require([
     "dojo/dom",
     "dojo/on",
     "dojo/domReady!"
-  ], function(Map, Basemap, MapView, FeatureLayer, dom, on, CalciteMaps, CalciteMapsArcGIS) {
+  ], function(Map, Basemap, MapView, BasemapToggle, FeatureLayer, dom, on, CalciteMaps, CalciteMapsArcGIS) {
 
+    // Set up popup template for the layer
+      var pTemplate = {
+        title: "Station ID: {stationID}",
+        content: [{
+          type: "fields",
+          fieldInfos: [{
+            fieldName: "name",
+            label: "Station name",
+            visible: true
+          }, {
+            fieldName: "country",
+            label: "Country",
+            visible: true
+          }, {
+            fieldName: "state",
+            label: "State/Province/Territory",
+            visible: true
+          }, {
+            fieldName: "elev",
+            label: "Elevation",
+            visible: true
+          }]
+        }]
+      };
 
      var map = new Map({
       basemap: "topo",
@@ -24,7 +49,9 @@ require([
 
     var ghcndLyr = new FeatureLayer({
       url: "https://services.arcgis.com/8df8p0NlLFEShl0r/ArcGIS/rest/services/midwest_na_met_stations/FeatureServer",
-      id: "ghcnd"
+      id: "ghcnd",
+      outFields: ["*"],
+      popupTemplate: pTemplate
     });
 
     map.add(ghcndLyr);
@@ -50,6 +77,13 @@ require([
         }
       }
     });
+
+    var bmapToggle = new BasemapToggle({
+      view: view,
+      nextBasemap: "satellite"
+    });
+
+    view.ui.add(bmapToggle, "bottom-right");
 
     /*view.on("layerview-create", function(event) {
       if (event.layer.id === "ghcnd") {

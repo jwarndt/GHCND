@@ -10,22 +10,75 @@
     background-position: 0% 25%;
 
     */
-    background-image: url("../../images/lake-superior-2093792_1920.jpg");
-    background-position: 0% 40%;
-    background-color: black;
+    background-color: #515f7a;
 }
 
-html, body, #viewDiv {
+#mapContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+html, body {
       padding: 0;
       margin: 0;
       height: 100%;
-      width: 100%;
     }
 
 #optionsToggle {
   background-color: transparent;
   border-color: transparent;
   color: white;
+}
+
+#optionsButton {
+  background-color: transparent;
+  color: white;
+  border-color: white;
+  float: right;
+  margin-right: 10px;
+}
+
+#optionsMenu {
+  z-index: 999;
+  position: relative;
+  top: 0;
+  float: right;
+  margin-right: 10px;
+  margin-top: 65px;
+  width: 300px;
+  padding: 0;
+  background-color: #fff;
+  box-shadow: 0px 1px;
+}
+
+#dataFilters {
+  position: relative;
+  margin-bottom: 0;
+  background-color: #3a4357;
+}
+
+.panel-heading.panelTitle {
+  background-color: #515f7a;
+  border-color: white;
+  color: white;
+}
+
+.filterCategory {
+  padding: 0;
+}
+
+.subOptions {
+  margin-left: 0;
+}
+
+.timeForm {
+  padding-bottom:10px;
+}
+
+.subGroup {
+  padding-left: 10px;
+  padding-top: 8px;
 }
 
 .appName {

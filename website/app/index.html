@@ -22,24 +22,152 @@
 
 <body>
 
-  <nav class="navbar calcite-navbar navbar-fixed-top calcite-text-light" id="mainNavBar">
+  <nav class="navbar navbar-fixed-top" id="mainNavBar">
     <!-- Title -->
-    <div class="calcite-title calcite-overflow-hidden">
-      <a class="calcite-title-main appName" href="../index.html">Midwest Climate Explorer</a>
-      <span class="calcite-title-divider hidden-xs" style="color:white"></span>
-      <span class="calcite-title-sub hidden-xs" style="color:white;font-style:italic;font-weight:100">A tool for visualizing and analyzing surface-level climate data in the midwest</span>
-    </div>
+    <a class="navbar-brand appName" href="../index.html">Midwest Climate Explorer</a>
+      <a class="navbar-brand" style="color:white;font-style:italic;font-weight:100;font-size:12px">A tool for visualizing and analyzing surface-level climate data in the midwest</a>
     <!-- Nav -->
-    <ul class="calcite-nav nav navbar-nav">                                    
-      <li>
-        <div class="calcite-navbar-search calcite-search-expander" role="presentation" tabindex="-1">
-          <div id="searchNavDiv" tabindex="0"></div>
-        </div>
-      </li>
-    </ul>  
+    <button class="btn navbar-btn" id="optionsButton" type="button" data-toggle="collapse" data-target="#optionsMenu" aria-expanded="false" aria-controls="optionsMenu">Options</button>
   </nav>
 
-  <div id="viewDiv"></div>
+  <div class="calcite-map calcite-map-absolute">
+      <div id="viewDiv">
+      </div>
+  </div>
+
+  <div class="container collapse" id="optionsMenu">
+    <div class="panel-body filterCategory">
+      <div class="panel-group" id="dataFilters"> 
+        
+        <div class="panel panel-default" style="margin-top:0">
+          <div class="panel-heading panelTitle">
+            <h4 class="panel-title">
+              <a class="collapsed" data-toggle="collapse" data-parent="#dataFilters" data-target="#variables" aria-controls="variables">
+              Variable
+              </a>
+            </h4>
+          </div><!--/.panel-heading -->
+            <div class="collapse" id="variables">
+            <ul class="subGroup">
+              <div>
+              <label class="checkbox-inline subOptions">
+                <input type="checkbox" id="maxTemp" value="">Maximum Temperature</label>
+            </div>
+            <div>
+              <label class="checkbox-inline" style="margin-left:0">
+                <input type="checkbox" id="minTemp" value="">Minimum Temperature</label>
+            </div>
+            <div>
+              <label class="checkbox-inline" style="margin-left:0">
+                <input type="checkbox" id="prcp" value="">Precipitation</label>
+            </div>
+            </ul>
+            </div>
+          </div>
+
+        <div class="panel panel-default" style="margin-top:0">
+          <div class="panel-heading panelTitle">
+            <h4 class="panel-title">
+              <a class="collapsed" data-toggle="collapse" data-parent="#dataFilters" data-target="#dataType" aria-controls="dataType">
+              Data Type
+              </a>
+            </h4>
+          </div><!--/.panel-heading -->
+            <div class="collapse" id="dataType">
+            <ul class="subGroup">
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="monthlyMean" checked>Monthly Mean</label>
+              </div>
+            </ul>
+            </div>
+          </div>
+
+        <div class="panel panel-default" style="margin-top:0">
+          <div class="panel-heading panelTitle">
+            <h4 class="panel-title">
+              <a class="collapsed" data-toggle="collapse" data-parent="#dataFilters" data-target="#time" aria-controls="time">
+              Time Period
+              </a>
+            </h4>
+          </div><!--/.panel-heading -->
+          <div class="collapse" id="time">
+            <ul class="subGroup">
+              <form class="form-inline">
+                <div class="timeForm">
+                <label class="mr-sm-2" for="startTime" style="font-weight:400">Start Time</label>
+                <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" id="startTime" placeholder="1950-01-01">
+                </div>
+                <div>
+                <label class="mr-sm-2" for="endTime" style="font-weight:400">End Time</label>
+                <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" id="endTime" placeholder="2017-10-01">
+                </div>
+              </form>
+              <div>
+                <label class="checkbox-inline subOptions"><input type="checkbox" value="" checked>Set Time Bounds</label>
+              </div>
+            </ul>
+          </div>            
+        </div>
+
+          <div class="panel panel-default" style="margin-top:0">
+          <div class="panel-heading panelTitle">
+            <h4 class="panel-title">
+              <a class="collapsed" data-toggle="collapse" data-parent="#dataFilters" data-target="#location" aria-controls="location">
+              Location
+              </a>
+            </h4>
+          </div><!--/.panel-heading -->
+            <div class="collapse" id="location">
+            <ul class="subGroup">
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="illinoisStations" checked>Illinois</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="iowaStations" checked>Iowa</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="manitobaStations" checked>Manitoba</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="michiganStations" checked>Michigan</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="minnesotaStations" checked>Minnesota</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="nebraskaStations" checked>Nebraska</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="northdakotaStations" checked>North Dakota</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="ontarioStations" checked>Ontario</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="saskatchewanStations" checked>Saskatchewan</label>
+              </div>
+              <div>
+                <label class="checkbox-inline subOptions">
+                  <input type="checkbox" value="" id="wisconsinStations" checked>Wisconsin</label>
+              </div>
+            </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <script type="text/javascript">
     var dojoConfig = {

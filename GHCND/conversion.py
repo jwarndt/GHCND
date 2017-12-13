@@ -7,6 +7,14 @@ def TenthsCelsiusToCelsius(stationCollection):
 	The station data is in tenths of a degree celsius.
 	This will convert all temperature data in the station
 	collection to Celsius
+
+	Parameters:
+	------------
+	stationCollection: StationPreprocessor object
+
+	Returns:
+	----------
+	None
 	"""
 	for s in stationCollection.stations:
 		for v in s.variables:

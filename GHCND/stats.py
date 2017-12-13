@@ -1,6 +1,7 @@
 import numpy as np
 import datetime
 import calendar
+from GHCND import conversion
 
 validtimeframes = ["month","season","year"]
 # default seasons are DJF, MAM, JJA, SON 
@@ -35,6 +36,7 @@ def calculateMean(stationCollection,timeframe):
                 __calculateSeasonalMean(station.variables[varName])
             else:           
                 __calculateAnnualMean(station.variables[varName])
+    conversion.TenthsCelsiusToCelsius(stationCollection) # convert all temperature data in the preprocessor to celsius
 
 def __calculateMonthlyMean(climateVariable):
     timestep = 0

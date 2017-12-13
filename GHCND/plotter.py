@@ -2,9 +2,31 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-# the plotter assumes we are working in celsius
-# the plotter only plots axis labels for a few variables.
+
 def plotStationSeries(stationObject, variableName, saveFigDirectory=None):
+    """
+    the plotter assumes we are working in celsius
+    the plotter only plots axis labels for temperature and
+    precipitation variables.
+
+    Parameters:
+    -------------
+    stationObjects: a Station object
+        a station object created by the station
+        preprocessor when adding stations with
+        state and country name
+    variableName: string
+        the name of the variable you want to plot
+        a variableName is only valid if that variable
+        exists in the station
+    saveFigDirectory: string
+        the path to the directory in which you want to save
+        the figure. default is None (the figure won't save) 
+
+    Returns:
+    ---------
+    plt.show(): a matplot lib plot
+    """
     if variableName not in stationObject.variables:
         print("error: variable doesn't exist in station")
         return
@@ -23,8 +45,12 @@ def plotStationSeries(stationObject, variableName, saveFigDirectory=None):
         plt.savefig(saveFigDirectory + "/" + stationObject.stationId + "_" + stationObject.variables[variableName].dataDescription + "_" + variableName + ".png")
     plt.show()
 
+
 def plotOutFile(filename):
-    # quick plot of data values outputted from the gap fill software
+    # DEPRECATED
+    """
+    quick plot of data values outputted from the gap fill software ssa-mtm
+    """
     infile = open(filename,"r")
     line = infile.readline()
     data_array = []

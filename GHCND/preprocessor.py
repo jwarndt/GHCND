@@ -7,6 +7,86 @@ import numpy as np
 import osgeo.ogr as ogr
 import osgeo.osr as osr
 
+"""
+High level description of how this is used. It's easy to think of
+this as a preprocessing pipeline. In fact, that's exactly what this is. 
+
+To begin reading the the daily station data, you
+must first define which stations you would like to read.
+
+The way you define which stations to process is by specifying
+the 1) countries and 2) states/provinces/territories of the stations
+you want. Specifying the states/provinces/territories is only applicable
+ for the United States and Canada.
+
+Once you have defined the states and countries you want to process, you will
+then add the stations to the StationPreprocessor by using the addStations()
+function.
+
+Once the stations have been added, you are ready to process the daily data.
+To begin the data read, simply run the processDlyFiles(vars) function with
+a list of variables you are interested in. Note: this loads a lot of data
+into main memory (in some cases 120 years of daily data).
+Be wise about how many countries and states you use to
+define the stations. Furthermore, be wise about how many variables
+you would like data for. (perhaps at a later date I will incorporate
+ file and data queues so large amounts of data can be
+processed without the user having to manually chunk up data themselves).
+At the end of this step your StationPreprocessor will contain all the
+stations you have defined and all their daily data for the variables 
+you defined.
+
+The next step is convert the daily data to monthly means. To do this,
+you must use the GHCND.stats module. At present, the stats module only
+supports monthly mean calculation for temperature and precipitation.
+(In the case of precipitation, it's the total accumulated precipitation
+over the month)
+
+Behind the scenes there has been some filtering going on to remove unwanted
+data. The current hard-coded settings for filtering and reading the data are:
+(These hard-coded settings should be modified if you are interested in data outside
+Canada and the United States)
+
+Daily data values that do not pass this criteria are set to NaN
+1. only include data that has passed the quality check of NOAA NCDC
+2. only include data from the sources:
+    - U.S. Cooperative Summary of the Day
+    - CDMP Cooperative Summary of the Day
+    - U.S. Cooperative Summary of the Day -- Transmitted via WxCoder3
+    - U.S. Automated Surface Observing System (ASOS)
+    - Environment Canada  
+    - Official Global Climate Observing System (GCOS) or other
+        government-supplied data
+    - NCEI Reference Network Database (Climate Reference Network and Regional Climate
+        Reference Network)
+3. days with missing values are set to NaN 
+4. eliminate all stations that hold only NaN values for data. (In other
+words, eliminate stations where none of the data they recorded passed the filter step).
+
+The following steps are applied when aggregating to monthly mean data.
+1. If there are more than 5 missing daily data values in the month, set the
+month data value to NaN.
+2. If more than 75% of the monthly mean values for a variable are NaN, remove the variable
+from the station.
+3. If all the monthly station data is NaN, remove the station
+4. If the station did not operate or record valid data past 2016, 
+remove the station. 
+
+You can write the cleaned data to disk using the export functions.
+There are three ways of exporting:
+1. exportToShapefile()
+       -This does not contain the monthly data values. It includes station location
+       station name, station id, which variables it recorded, etc..
+2. exportToJSON()
+        -This will write all the monthly data to JSON. Keys are the stationId
+        It is not GeoJSON.
+3. exportToDat()
+        -Write the data seperate data files for each station and variable in the
+        stationPreprocessor. See the metadata_log.txt file to find see associated
+        metadata for each file. 
+"""
+
+
 class StationPreprocessor(object):
     
     def __init__(self,initStationsMetadata,initInventoryMetadata,initDlyFileDirectory):
@@ -28,7 +108,8 @@ class StationPreprocessor(object):
         self.states = [] # a list of state abreviations
         self.countries = [] # a list of country abreviations
         
-        
+        # country map for mapping user input to country abreviations for
+        # retrieving stations from the data.
         self.countryMap = {'afghanistan': 'AF',
                          'albania': 'AL',
                          'algeria': 'AG',
@@ -325,10 +406,24 @@ class StationPreprocessor(object):
                          '':''}
     
     def setStates(self,newStates):
+        """
+        Parameters: 
+        -----------
+        newStates: list
+            a list of strings. the strings should be state names
+            found in the stateMap
+
+        Returns:
+        ---------
+        None
+        """
         self.clearStates() # clears the list first. Then sets it
         self.addStates(newStates)
     
     def addStates(self,newStates):
+        """
+        adds states to the station preprocessor.
+        """
         if type(newStates) != list:
             print("error: states not added. states must be in a list")
             return
@@ -340,11 +435,17 @@ class StationPreprocessor(object):
                 self.states.append(self.stateMap[n]) 
     
     def removeState(self,state):
+        """
+        removes states from the station preprocessor
+        """
         state = state.lower()
         if state in self.stateMap and self.stateMap[state] in self.states:
             self.states.remove(self.stateMap[state])
         
     def clearStates(self):
+        """
+        removes all previously added states in the station preprocessor
+        """
         self.states = []
         
     def setCountries(self,newCountries):
@@ -479,8 +580,8 @@ class StationPreprocessor(object):
         newstationlist = [] # this station list will only contain stations that have recorded data for the variablesOfInterest. (essentially removing stations that didn;t record data we wanted)
         numberOfStations = len(self.stations)
         print("reading " + str(numberOfStations) + " stations")
+        startprocesstime = time.time()
         for station in self.stations: # iterate through the Station objects
-            s = time.time()
             infile = open(os.path.join(self.dlyFileDir,station.stationId + ".dly"))
             line = infile.readline()
             datacount = 0
@@ -538,11 +639,17 @@ class StationPreprocessor(object):
                 finalStationList.append(s)
         self.stations = finalStationList
         print("done reading stations. " + str(len(self.stations)) + " stations left after filtering")
-                                                
+        print("total data read time: " + str(time.time() - startprocesstime))                                        
     
-    def writeToDat(self,out_dir):
-        """will write every station in the StationPreprocessor to a .dat file 
-        for gap filling in the ssa-mtm toolkit."""
+    def exportToDat(self,out_dir):
+        """
+        will write every station in the StationPreprocessor to a .dat file 
+        for gap filling in the ssa-mtm toolkit.
+        
+        A dat file here is a file with a single column of data
+        This also writes out a metadata file. The output filename is the same as the 
+        data's station ID and variable. 
+        """
         if os.path.isfile(os.path.join(out_dir,"metadata_log.txt")): # the log file already exists, append to it.
             outmetadata = open(os.path.join(out_dir,"metadata_log.txt"),"a")
         else:

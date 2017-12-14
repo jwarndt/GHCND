@@ -13,13 +13,21 @@ plotter: a module for plotting time series
 conversion: a module to convert between units  
   
   
-Module: preprocessor  
+# Module: preprocessor  
   
-Classes:  
+## Classes:  
 ---------  
-GHCND.preprocessor.StationPreprocessor  
+GHCND.preprocessor.StationPreprocessor
+GHCND.preprocessor.Station  
+GHCND.preprocessor.ClimateVar  
   
-Methods:  
+### GHCND.preprocessor.StationPreprocessor
+
+#### Properties:  
+-----------------
+
+  
+#### Methods:  
 -----------  
 __init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)  
   #### Parameters:    

@@ -1,4 +1,4 @@
-This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset. It is not fully functional yet. The only way to use it at this point is to download the master branch and have the dependencies installed. It was developed in Python 2.7. I haven't tested it with Python 3.5 or 3.6.  
+This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset. It is not fully functional yet. The only way to use it at this point is to download the master branch, have the dependencies installed, and work within the GHCND folder. It was developed in Python 2.7. I haven't tested it with Python 3.5 or 3.6.  
 
 This package has the following dependencies:  
 gdal  

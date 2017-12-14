@@ -186,7 +186,7 @@ A module for calculating basic climate statistics on stations and variables in t
 #### Functions:  
 
 ### calculateMean  
-Calculates the mean for a given timeframe all stations and variables in a station preprocessor object. 
+Calculates the mean for a given timeframe all stations and variables in a station preprocessor object. A filtering step occurs at this stage. The monthly mean for a variable is set the NaN if more than 5 daily data values in the month are NaN. If more than 75% of a variable's monthy mean values are NaN, remove the variable from the station. If the station has no variables after this, remove the station. If the station was not reporting values in the 2016, remove the station.
 ```calculateMean(stationPreprocessor, timeframe)```  
   ##### Parameters:  
   - stationPreprocessor: a stationPreprocessor object  

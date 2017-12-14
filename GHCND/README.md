@@ -28,7 +28,7 @@ states: returns a list of state abbreviations
 countries: returns a list of country abbreviations  
   
 #### Methods:   
-__init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)  
+```__init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)```  
 constructs a preprocessor object to hold station data  
   #### Parameters:    
   - initStationsMetadata: string  

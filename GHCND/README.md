@@ -1,4 +1,4 @@
-This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset. It is not fully functional yet. The only way to use it at this point is to download the master branch, have the dependencies installed, and work within the GHCND folder. It was developed in Python 2.7. I haven't tested it with Python 3.5 or 3.6.  
+This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset. It is not fully functional yet. The only way to use it at this point is to download the master branch, have the dependencies installed, and work within the GHCND folder. It was developed in Python 2.7. I haven't tested it with Python 3.5 or 3.6. At present, it should only be used for stations in the United States or Canada. This is because some of the filtering criteria are hard-coded and specific to U.S. and canadian stations. Work in the future will focus on making this more flexible.  
 
 This package has the following dependencies:  
 gdal  (reading and writing spatial data. Specifically for exporting data to shapefile)  

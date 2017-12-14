@@ -112,3 +112,39 @@ Daily data values that fail the filter step described above are marker as NaN.
     - a list of strings. Each string is a variable name such as "TMAX", "TMIN", or "PRCP". This specifies which variables to process.  
     
 
+### exportToDat  
+```exportToDat(out_dir)```  
+Exports the data in the station preprocessor to .dat files. There is a single .dat file for each station and variable. This will also record a metadata_log.txt file that can be used to reference the output .dat files. The name of each .dat file is the station ID. This function requires that the dly files have been processed.   
+  ##### Parameters:  
+  - out_dir: string  
+    - The directory where the files will be written.  
+    
+### exportToShapefile    
+```exportToShapefile(filename)```  
+Exports the stations to a shapefile. This does not export any of the associated meteorological data with it.  
+  ##### Parameters:  
+  - filename: string  
+    - the name of the shapefile. You need to include the file extension .shp in the filename.
+    
+### exportToJSON  
+```exportToJSON(filename)```  
+Exports the station and associated data to JSON. JSON object will appear in this form:  
+```
+{stationId1:   
+    {variable1: 
+        {"data": [value1, value2, ... , valuen],
+         "timelist": [time1, time2, ..., timen]
+         },
+     variable2:
+        {"data": [value1, value2, ... , valuen],
+         "timelist": [time1, time2, ..., timen]
+         }
+    },
+stationId2:
+    {variable1: 
+        {"data": [value1, value2, ... , valuen],
+         "timelist": [time1, time2, ..., timen]
+        }
+    }
+}     
+```

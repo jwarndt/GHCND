@@ -15,21 +15,21 @@ conversion: a module to convert between units
   
 # Module: preprocessor  
   
-## Classes:  
----------  
-GHCND.preprocessor.StationPreprocessor
+## Classes:   
+GHCND.preprocessor.StationPreprocessor  
 GHCND.preprocessor.Station  
 GHCND.preprocessor.ClimateVar  
   
 ### GHCND.preprocessor.StationPreprocessor
 
 #### Properties:  
------------------
-
+stations: returns a list of GHCND.preprocessor.Station objects  
+states: returns a list of state abbreviations  
+countries: returns a list of country abbreviations  
   
-#### Methods:  
------------  
+#### Methods:   
 __init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)  
+constructs a preprocessor object to hold station data  
   #### Parameters:    
   - initStationsMetadata: string  
     - full file path to the ghcnd stations metadata file (ghcnd-stations.txt)  

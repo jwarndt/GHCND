@@ -1,4 +1,4 @@
-This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset.
+This is a small package for processing data from the Global Historical Climatology Network Daily (GHCND) dataset. It is not fully functional yet. The only way to use it at this point is to download the master branch and have the dependencies installed. It was developed in Python 2.7. I haven't tested it with Python 3.5 or 3.6.  
 
 This package has the following dependencies:  
 gdal  
@@ -178,3 +178,37 @@ end: the date corresponding to the last recorded value in the variable's data
 duration: the length of the record  
 data: a list of values  
 timelist: a list of datetime objects  
+
+
+# Module: stats  
+A module for calculating basic climate statistics on stations and variables in the station preprocessor.  
+
+#### Functions:  
+
+### calculateMean  
+Calculates the mean for a given timeframe all stations and variables in a station preprocessor object. 
+```calculateMean(stationPreprocessor, timeframe)```  
+  ##### Parameters:  
+  - stationPreprocessor: a stationPreprocessor object  
+    - should have stations and climate variables in it.
+  - timeframe: string
+    - a timeframe that will be used to calculate the mean. For example, to calculate monthly mean, use "month". The only valid timeframe at this point is "month". Future releases will include "season" and "annual".  
+    
+# Module: plotter  
+A module for plotting data in a climate variable.  
+
+#### Functions:  
+
+### plotStationSeries  
+Creates a time series plot of a variable for a given station.  
+```plotStationSeries(stationObject, variableName, saveFigDirectory=None)```  
+  ##### Parameters:  
+  - stationObject: a Station object  
+    - a station from a station preprocessor  
+  - variableName: string  
+    - the name of the variable to plot ("TMAX","TMIN","PRCP")  
+  - saveFigDirectory: string  
+    - this defaults to None if not specified. Otherwise, pass in the name of the directory that you want to write the time series plot to. Times series are saved as .png. The file name is the station Id.  
+    
+# Module: conversion  
+A module for converting between units. This is not implemented entirely yet. It's used within the other modules.  

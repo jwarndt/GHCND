@@ -22,13 +22,11 @@ GHCND.preprocessor.StationPreprocessor
 Methods:  
 -----------  
 __init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)  
-    Parameters:  
-    -----------  
-    initStationsMetadata: string  
-        full file path to the ghcnd stations metadata file (ghcnd-stations.txt)  
-    initInventoryMetadata: string  
-        full file path to the ghcnd inventory metadata file (ghcnd-inventory.txt)  
-    initDlyFileDirectory: string  
-        path to the directory holding the ghcnd dly files (ghcnd_all)  
-        
-        
+  Parameters:  
+  -----------  
+  - initStationsMetadata: string  
+    - full file path to the ghcnd stations metadata file (ghcnd-stations.txt)  
+  - initInventoryMetadata: string  
+    - full file path to the ghcnd inventory metadata file (ghcnd-inventory.txt)  
+  - initDlyFileDirectory: string  
+    - path to the directory holding the ghcnd dly files (ghcnd_all)  

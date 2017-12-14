@@ -29,7 +29,7 @@ countries: returns a list of country abbreviations
   
 #### Methods:  
 
-<b> init </b>  
+#### init  
 ```__init__(initStationMetadata, initInventoryMetadata, initDlyFileDirectory)```  
 constructs a preprocessor object to hold station data  
   ##### Parameters:    
@@ -40,14 +40,14 @@ constructs a preprocessor object to hold station data
   - initDlyFileDirectory: string  
     - path to the directory holding the ghcnd dly files (ghcnd_all)  
 
-<b> addStates </b>  
+#### addStates  
 ```addStates(newStates)```  
 Adds states to the station preprocessor. This will define the states for which you want to process station data for.  
   ##### Parameters:
   - newStates: list  
     - a list of strings. the strings should be state names found in the stateMap  
 
-<b> removeState </b>  
+#### removeState    
 ```removeState(state)```  
 Remove states from the station preprocessor  
   ##### Parameters:  

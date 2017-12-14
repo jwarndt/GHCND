@@ -20,7 +20,7 @@ GHCND.preprocessor.StationPreprocessor
 GHCND.preprocessor.Station  
 GHCND.preprocessor.ClimateVar  
   
-### GHCND.preprocessor.StationPreprocessor
+### Class: GHCND.preprocessor.StationPreprocessor
 
 #### Properties:  
 stations: returns a list of GHCND.preprocessor.Station objects  
@@ -148,3 +148,33 @@ stationId2:
     }
 }     
 ```
+  ##### Parameters:
+  - filename: string  
+    - the name of the output file  
+    
+### Class: GHCND.preprocessor.Station  
+
+#### Properties:  
+name: the name of the station  
+stationId: the station ID
+country: the country the station is in  
+state: the state the station is in. This will be None if it is a station outsite the United States or Canada.  
+lat: latitude  
+lon: longitude  
+elev: elevation  
+variables: a dictionary where the keys are variable names ("TMAX","TMIN","PRCP") and the values are ClimateVar objects  
+crn: a boolean saying whether the station is part of the U.S. Climate Reference Network or U.S. Regional Climate Network Station  
+hcn: a boolean saying whether the station is part of the U.S. Historical CLimatology Network (HSN)  
+gsn: a boolean saying whether the station is part of the GCOS Surface Network (GSN)  
+wmoId: the world meteorlogical organization station ID. This will be None for stations not in the wmo.  
+
+### Class: GHCND.preprocessor.ClimateVar  
+
+#### Properties:  
+name: the variable name ("TMAX", "TMIN", "PRCP", etc...)  
+dataDescription: a description of the data in the climate variable ("daily", "monthly_mean", etc...)  
+start: the date corresponding to the first recorded value in the variable's data    
+end: the date corresponding to the last recorded value in the variable's data    
+duration: the length of the record  
+data: a list of values  
+timelist: a list of datetime objects  

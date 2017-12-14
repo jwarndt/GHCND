@@ -37,7 +37,8 @@ constructs a preprocessor object to hold station data
     - full file path to the ghcnd inventory metadata file (ghcnd-inventory.txt)  
   - initDlyFileDirectory: string  
     - path to the directory holding the ghcnd dly files (ghcnd_all)  
-  
+
+<b> addStates </b>
 ```addStates(newStates)```  
 Adds states to the station preprocessor. This will define the states for which you want to process station data for.  
   #### Parameters:
